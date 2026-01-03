@@ -230,7 +230,7 @@ const installRequirements = async (
 				}
 			})
 			.connect({
-				host: server.ipAddress,
+				host: server.ipAddress?.trim(),
 				port: server.port,
 				username: server.username,
 				privateKey: server.sshKey?.privateKey,
