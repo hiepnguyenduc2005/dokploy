@@ -39,11 +39,16 @@ export const runMySqlBackup = async (mysql: MySql, backup: BackupSchedule) => {
 		} else {
 			await execAsync(backupCommand, {
 				shell: "/bin/bash",
+				env: {
+					...process.env,
+					PATH: `${process.env.PATH}:/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin`,
+				},
 			});
 		}
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "mysql",
 			type: "success",
 			organizationId: project.organizationId,
@@ -54,6 +59,7 @@ export const runMySqlBackup = async (mysql: MySql, backup: BackupSchedule) => {
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "mysql",
 			type: "error",
 			// @ts-ignore
