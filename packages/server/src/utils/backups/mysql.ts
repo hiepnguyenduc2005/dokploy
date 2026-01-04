@@ -48,6 +48,7 @@ export const runMySqlBackup = async (mysql: MySql, backup: BackupSchedule) => {
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "mysql",
 			type: "success",
 			organizationId: project.organizationId,
@@ -58,6 +59,7 @@ export const runMySqlBackup = async (mysql: MySql, backup: BackupSchedule) => {
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "mysql",
 			type: "error",
 			// @ts-ignore

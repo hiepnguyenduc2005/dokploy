@@ -49,6 +49,7 @@ export const runMariadbBackup = async (
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "mariadb",
 			type: "success",
 			organizationId: project.organizationId,
@@ -59,6 +60,7 @@ export const runMariadbBackup = async (
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "mariadb",
 			type: "error",
 			// @ts-ignore

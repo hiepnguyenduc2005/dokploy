@@ -51,6 +51,7 @@ export const runPostgresBackup = async (
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "postgres",
 			type: "success",
 			organizationId: project.organizationId,
@@ -61,6 +62,7 @@ export const runPostgresBackup = async (
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "postgres",
 			type: "error",
 			// @ts-ignore

@@ -47,6 +47,7 @@ export const runMongoBackup = async (mongo: Mongo, backup: BackupSchedule) => {
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "mongodb",
 			type: "success",
 			organizationId: project.organizationId,
@@ -57,6 +58,7 @@ export const runMongoBackup = async (mongo: Mongo, backup: BackupSchedule) => {
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "mongodb",
 			type: "error",
 			// @ts-ignore
