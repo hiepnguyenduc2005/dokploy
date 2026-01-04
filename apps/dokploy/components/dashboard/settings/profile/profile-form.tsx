@@ -32,7 +32,11 @@ import { Disable2FA } from "./disable-2fa";
 import { Enable2FA } from "./enable-2fa";
 
 const profileSchema = z.object({
-	email: z.string(),
+	email: z
+		.string()
+		.min(1, "Email is required")
+		.email("Please enter a valid email address"),
+	name: z.string().optional(),
 	password: z.string().nullable(),
 	currentPassword: z.string().nullable(),
 	image: z.string().optional(),
@@ -79,6 +83,7 @@ export const ProfileForm = () => {
 
 	const form = useForm<Profile>({
 		defaultValues: {
+			name: data?.user?.name || "",
 			email: data?.user?.email || "",
 			password: "",
 			image: data?.user?.image || "",
@@ -92,6 +97,7 @@ export const ProfileForm = () => {
 		if (data) {
 			form.reset(
 				{
+					name: data?.user?.name || "",
 					email: data?.user?.email || "",
 					password: form.getValues("password") || "",
 					image: data?.user?.image || "",
@@ -114,6 +120,7 @@ export const ProfileForm = () => {
 
 	const onSubmit = async (values: Profile) => {
 		await mutateAsync({
+			name: values.name,
 			email: values.email.toLowerCase(),
 			password: values.password || undefined,
 			image: values.image,
@@ -124,6 +131,7 @@ export const ProfileForm = () => {
 				await refetch();
 				toast.success("Profile Updated");
 				form.reset({
+					name: values.name,
 					email: values.email,
 					password: "",
 					image: values.image,
@@ -167,6 +175,23 @@ export const ProfileForm = () => {
 										className="grid gap-4"
 									>
 										<div className="space-y-4">
+											<FormField
+												control={form.control}
+												name="name"
+												render={({ field }) => (
+													<FormItem>
+													<FormLabel>{t("settings.profile.name")}</FormLabel>
+													<FormControl>
+														<Input
+															placeholder={t("settings.profile.name")}
+																{...field}
+																value={field.value || ""}
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
 											<FormField
 												control={form.control}
 												name="email"

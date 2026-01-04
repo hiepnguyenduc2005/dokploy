@@ -14,6 +14,7 @@ import {
 export type TemplateProps = {
 	projectName: string;
 	applicationName: string;
+	databaseName: string;
 	databaseType: "postgres" | "mysql" | "mongodb" | "mariadb";
 	type: "error" | "success";
 	errorMessage?: string;
@@ -23,12 +24,13 @@ export type TemplateProps = {
 export const DatabaseBackupEmail = ({
 	projectName = "dokploy",
 	applicationName = "frontend",
+	databaseName = "database1",
 	databaseType = "postgres",
 	type = "success",
 	errorMessage,
 	date = "2023-05-01T00:00:00.000Z",
 }: TemplateProps) => {
-	const previewText = `Database backup for ${applicationName} was ${type === "success" ? "successful ✅" : "failed ❌"}`;
+	const previewText = `Database backup for ${databaseName} was ${type === "success" ? "successful ✅" : "failed ❌"}`;
 	return (
 		<Html>
 			<Preview>{previewText}</Preview>
@@ -59,13 +61,13 @@ export const DatabaseBackupEmail = ({
 							/>
 						</Section>
 						<Heading className="text-black text-[24px] font-normal text-center p-0 my-[30px] mx-0">
-							Database backup for <strong>{applicationName}</strong>
+							Database backup: <strong>{databaseName}</strong>
 						</Heading>
 						<Text className="text-black text-[14px] leading-[24px]">
 							Hello,
 						</Text>
 						<Text className="text-black text-[14px] leading-[24px]">
-							Your database backup for <strong>{applicationName}</strong> was{" "}
+							Your database backup for <strong>{databaseName}</strong> was{" "}
 							{type === "success"
 								? "successful ✅"
 								: "failed  Please check the error message below. ❌"}
@@ -79,8 +81,9 @@ export const DatabaseBackupEmail = ({
 							<Text className="!leading-3">
 								Application Name: <strong>{applicationName}</strong>
 							</Text>
-							<Text className="!leading-3">
-								Database Type: <strong>{databaseType}</strong>
+							<Text className="!leading-3">							Database Name: <strong>{databaseName}</strong>
+						</Text>
+						<Text className="!leading-3">								Database Type: <strong>{databaseType}</strong>
 							</Text>
 							<Text className="!leading-3">
 								Date: <strong>{date}</strong>

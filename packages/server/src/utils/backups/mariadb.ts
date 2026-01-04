@@ -39,12 +39,17 @@ export const runMariadbBackup = async (
 		} else {
 			await execAsync(backupCommand, {
 				shell: "/bin/bash",
+				env: {
+					...process.env,
+					PATH: `${process.env.PATH}:/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin`,
+				},
 			});
 		}
 
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "mariadb",
 			type: "success",
 			organizationId: project.organizationId,
@@ -55,6 +60,7 @@ export const runMariadbBackup = async (
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "mariadb",
 			type: "error",
 			// @ts-ignore

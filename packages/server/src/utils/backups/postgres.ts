@@ -41,12 +41,17 @@ export const runPostgresBackup = async (
 		} else {
 			await execAsync(backupCommand, {
 				shell: "/bin/bash",
+				env: {
+					...process.env,
+					PATH: `${process.env.PATH}:/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin`,
+				},
 			});
 		}
 
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "postgres",
 			type: "success",
 			organizationId: project.organizationId,
@@ -57,6 +62,7 @@ export const runPostgresBackup = async (
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "postgres",
 			type: "error",
 			// @ts-ignore

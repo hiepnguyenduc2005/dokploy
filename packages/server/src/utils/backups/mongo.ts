@@ -37,12 +37,17 @@ export const runMongoBackup = async (mongo: Mongo, backup: BackupSchedule) => {
 		} else {
 			await execAsync(backupCommand, {
 				shell: "/bin/bash",
+				env: {
+					...process.env,
+					PATH: `${process.env.PATH}:/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin`,
+				},
 			});
 		}
 
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "mongodb",
 			type: "success",
 			organizationId: project.organizationId,
@@ -53,6 +58,7 @@ export const runMongoBackup = async (mongo: Mongo, backup: BackupSchedule) => {
 		await sendDatabaseBackupNotifications({
 			applicationName: name,
 			projectName: project.name,
+			databaseName: backup.database,
 			databaseType: "mongodb",
 			type: "error",
 			// @ts-ignore
