@@ -7,7 +7,9 @@ export const getPostgresRestoreCommand = (
 	database: string,
 	databaseUser: string,
 ) => {
-	return `docker exec -i $CONTAINER_ID sh -c "pg_restore -U ${databaseUser} -d ${database} -O --clean --if-exists"`;
+	// Decompress and pipe into container, then use pg_restore with stdin
+	// Note: pg_restore can read custom format from stdin with the - argument
+	return `gunzip | docker exec -i $CONTAINER_ID pg_restore -U ${databaseUser} -d ${database} -O --clean --if-exists`;
 };
 
 export const getMariadbRestoreCommand = (
@@ -119,12 +121,14 @@ export const getRestoreCommand = ({
 		serviceName,
 	);
 	const restoreCommand = generateRestoreCommand(type, credentials);
-	let cmd = `CONTAINER_ID=$(${containerSearch})`;
+	
+	let cmd = `CONTAINER_ID=$(${containerSearch}) && `;
+	cmd += `if [ -z "$CONTAINER_ID" ]; then echo "Error: Container not found"; exit 1; fi && `;
 
 	if (type !== "mongo") {
-		cmd += ` && ${rcloneCommand} | ${restoreCommand}`;
+		cmd += `${rcloneCommand} | ${restoreCommand}`;
 	} else {
-		cmd += ` && ${getMongoSpecificCommand(rcloneCommand, restoreCommand, backupFile || "")}`;
+		cmd += `${getMongoSpecificCommand(rcloneCommand, restoreCommand, backupFile || "")}`;
 	}
 
 	return cmd;

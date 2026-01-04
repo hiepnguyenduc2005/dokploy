@@ -20,7 +20,7 @@ export const restorePostgresBackup = async (
 
 		const backupPath = `${bucketPath}/${backupInput.backupFile}`;
 
-		const rcloneCommand = `rclone cat ${rcloneFlags.join(" ")} "${backupPath}" | gunzip`;
+		const rcloneCommand = `rclone cat ${rcloneFlags.join(" ")} "${backupPath}"`;
 
 		emit("Starting restore...");
 		emit(`Backup path: ${backupPath}`);
@@ -41,7 +41,13 @@ export const restorePostgresBackup = async (
 		if (serverId) {
 			await execAsyncRemote(serverId, command);
 		} else {
-			await execAsync(command);
+			await execAsync(command, {
+				shell: "/bin/bash",
+				env: {
+					...process.env,
+					PATH: `${process.env.PATH}:/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin`,
+				},
+			});
 		}
 
 		emit("Restore completed successfully!");

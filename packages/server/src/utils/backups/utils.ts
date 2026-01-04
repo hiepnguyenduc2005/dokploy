@@ -67,7 +67,7 @@ export const getS3Credentials = (destination: Destination) => {
 		`--s3-region=${region}`,
 		`--s3-endpoint=${endpoint}`,
 		"--s3-no-check-bucket",
-		"--s3-force-path-style",
+		"--s3-force-path-style=true",
 	];
 
 	if (provider) {
@@ -246,25 +246,16 @@ export const getBackupCommand = (
 	fi
 
 	echo "[$(date)] Container Up: $CONTAINER_ID" >> ${logPath};
+	echo "[$(date)] Starting backup and upload to S3..." >> ${logPath};
 
-	# Run the backup command and capture the exit status
-	BACKUP_OUTPUT=$(${backupCommand} 2>&1 >/dev/null) || {
-		echo "[$(date)] ❌ Error: Backup failed" >> ${logPath};
-		echo "Error: $BACKUP_OUTPUT" >> ${logPath};
-		exit 1;
-	}
-
-	echo "[$(date)] ✅ backup completed successfully" >> ${logPath};
-	echo "[$(date)] Starting upload to S3..." >> ${logPath};
-
-	# Run the upload command and capture the exit status
-	UPLOAD_OUTPUT=$(${backupCommand} | ${rcloneCommand} 2>&1 >/dev/null) || {
-		echo "[$(date)] ❌ Error: Upload to S3 failed" >> ${logPath};
+	# Run the backup command and pipe directly to rclone, capturing any errors
+	UPLOAD_OUTPUT=$(${backupCommand} 2>&1 | ${rcloneCommand} 2>&1) || {
+		echo "[$(date)] ❌ Error: Backup or upload failed" >> ${logPath};
 		echo "Error: $UPLOAD_OUTPUT" >> ${logPath};
 		exit 1;
 	}
 
-	echo "[$(date)] ✅ Upload to S3 completed successfully" >> ${logPath};
+	echo "[$(date)] ✅ Backup and upload to S3 completed successfully" >> ${logPath};
 	echo "Backup done ✅" >> ${logPath};
 	`;
 };
