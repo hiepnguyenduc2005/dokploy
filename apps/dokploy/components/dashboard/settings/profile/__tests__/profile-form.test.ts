@@ -10,7 +10,10 @@ import { z } from "zod";
 
 // Copy of the schema from profile-form.tsx for testing
 const profileSchema = z.object({
-	email: z.string(),
+	email: z
+		.string()
+		.min(1, "Email is required")
+		.email("Please enter a valid email address"),
 	name: z.string().optional(),
 	password: z.string().nullable(),
 	currentPassword: z.string().nullable(),
@@ -206,6 +209,104 @@ describe("profileSchema - Name Field Validation", () => {
 				currentPassword: null,
 			});
 			expect(result.success).toBe(false);
+		});
+	});
+
+	describe("should validate email format and non-empty", () => {
+		it("should reject empty email string", () => {
+			const result = profileSchema.safeParse({
+				email: "",
+				name: "John Doe",
+				password: null,
+				currentPassword: null,
+			});
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.error.issues[0].message).toBe("Email is required");
+			}
+		});
+
+		it("should reject email without domain", () => {
+			const result = profileSchema.safeParse({
+				email: "notanemail",
+				name: "John Doe",
+				password: null,
+				currentPassword: null,
+			});
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.error.issues[0].message).toBe(
+					"Please enter a valid email address",
+				);
+			}
+		});
+
+		it("should reject email with missing local part", () => {
+			const result = profileSchema.safeParse({
+				email: "@example.com",
+				name: "John Doe",
+				password: null,
+				currentPassword: null,
+			});
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.error.issues[0].message).toBe(
+					"Please enter a valid email address",
+				);
+			}
+		});
+
+		it("should reject email with missing domain extension", () => {
+			const result = profileSchema.safeParse({
+				email: "test@example",
+				name: "John Doe",
+				password: null,
+				currentPassword: null,
+			});
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.error.issues[0].message).toBe(
+					"Please enter a valid email address",
+				);
+			}
+		});
+
+		it("should accept valid email formats", () => {
+			const validEmails = [
+				"test@example.com",
+				"user.name@example.co.uk",
+				"first+last@subdomain.example.com",
+				"123@example.com",
+				"test@example-domain.com",
+			];
+
+			validEmails.forEach((email) => {
+				const result = profileSchema.safeParse({
+					email,
+					name: "John Doe",
+					password: null,
+					currentPassword: null,
+				});
+				expect(result.success).toBe(true);
+				if (result.success) {
+					expect(result.data.email).toBe(email);
+				}
+			});
+		});
+
+		it("should prevent saving profile with cleared email", () => {
+			// This is the main bug being fixed - users should not be able to clear the email and save
+			const result = profileSchema.safeParse({
+				email: "", // User cleared the email field
+				password: null,
+				currentPassword: null,
+				image: "/avatars/avatar-1.png",
+				allowImpersonation: false,
+			});
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				expect(result.error.issues[0].message).toBe("Email is required");
+			}
 		});
 	});
 });
